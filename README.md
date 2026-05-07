@@ -10,16 +10,41 @@ Ethnic wear ecommerce is stuck in 2015 — generic search, no
 personalization, no understanding of fabric or occasion. 
 I run the brand and I'm an AI engineer, so I'm closing that gap.
 
-## What's being built
+## What's working today
 
-- [ ] **Style recommender** — visual similarity search over the 
-      saree catalog using CLIP embeddings + FAISS
-- [ ] **WhatsApp AI assistant** — answers fabric, blouse, and 
-      shipping questions, suggests sarees
-- [ ] **Image search** — upload a saree you've seen, find 
-      similar ones in the catalog
-- [ ] **Auto-generated product descriptions** in English, 
-      Malayalam, and Tamil
+✅ **Semantic text search** — natural language queries return matching sarees  
+   Example: `"wedding silk saree with gold zari border"` → finds Kanjivaram silks
+
+✅ **Visual similarity search** — upload a saree image, find similar pieces  
+   Example: upload an inspiration photo → returns the closest matches in catalog
+
+✅ **Combined image + text embeddings** (60% visual, 40% textual weighting)
+
+✅ **Local FAISS index** — fast, no API costs, runs on a laptop
+
+## Coming next
+
+- [ ] FastAPI web service wrapping the search
+- [ ] Search UI on the live store website
+- [ ] WhatsApp AI assistant for fabric / blouse / shipping questions
+- [ ] Auto-generated product descriptions in English, Malayalam, Tamil
+
+## How to run
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# One-time: build the index
+python embed_catalog.py
+
+# Search by text
+python search.py --text "wedding silk with gold border"
+
+# Search by image
+python search.py --image catalog/images/PP001.jpeg --top-k 5
+```
 
 ## Current status
 
