@@ -1,0 +1,10 @@
+torch
+torchvision
+transformers
+faiss-cpu
+Pillow
+pandas
+numpy
+fastapi
+uvicorn
+python-multipart
