@@ -18,18 +18,26 @@ import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import io
+import logging
 import pickle
+import time
 from typing import Optional
 
 import faiss
 import numpy as np
 import torch
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from PIL import Image
 from pydantic import BaseModel
 from transformers import CLIPModel, CLIPProcessor
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+)
+logger = logging.getLogger("pazhamozhi")
 
 INDEX_FILE = "catalog/saree_index.faiss"
 METADATA_FILE = "catalog/saree_metadata.pkl"
@@ -87,6 +95,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log every request as: METHOD path -> status (Xms)."""
+    start = time.perf_counter()
+    response = await call_next(request)
+    elapsed_ms = (time.perf_counter() - start) * 1000
+    logger.info(
+        "%s %s -> %d (%.0fms)",
+        request.method,
+        request.url.path,
+        response.status_code,
+        elapsed_ms,
+    )
+    return response
 
 
 class TextSearchRequest(BaseModel):
@@ -150,13 +174,23 @@ def health():
 
 @app.post("/search/text", response_model=list[SearchResult])
 def search_text(req: TextSearchRequest):
+    start = time.perf_counter()
     inputs = processor(text=[req.query], return_tensors="pt",
                        padding=True, truncation=True, max_length=77)
     with torch.no_grad():
         features = model.get_text_features(**inputs)
         features = extract_tensor(features)
         features = torch.nn.functional.normalize(features, dim=-1)
-    return search_index(features.squeeze().numpy(), top_k=req.top_k)
+    results = search_index(features.squeeze().numpy(), top_k=req.top_k)
+    elapsed_ms = (time.perf_counter() - start) * 1000
+    if results:
+        logger.info(
+            "search/text query=%r top=%s score=%.3f (%.0fms)",
+            req.query, results[0].id, results[0].score, elapsed_ms,
+        )
+    else:
+        logger.info("search/text query=%r no_results (%.0fms)", req.query, elapsed_ms)
+    return results
 
 
 @app.post("/search/image", response_model=list[SearchResult])
@@ -173,12 +207,25 @@ async def search_image(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid image: {e}")
 
+    start = time.perf_counter()
     inputs = processor(images=image, return_tensors="pt")
     with torch.no_grad():
         features = model.get_image_features(**inputs)
         features = extract_tensor(features)
         features = torch.nn.functional.normalize(features, dim=-1)
-    return search_index(features.squeeze().numpy(), top_k=top_k)
+    results = search_index(features.squeeze().numpy(), top_k=top_k)
+    elapsed_ms = (time.perf_counter() - start) * 1000
+    if results:
+        logger.info(
+            "search/image filename=%r bytes=%d top=%s score=%.3f (%.0fms)",
+            file.filename, len(contents), results[0].id, results[0].score, elapsed_ms,
+        )
+    else:
+        logger.info(
+            "search/image filename=%r bytes=%d no_results (%.0fms)",
+            file.filename, len(contents), elapsed_ms,
+        )
+    return results
 
 
 @app.get("/image/{filename}")
