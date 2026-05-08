@@ -2,7 +2,5 @@ venv/
 __pycache__/
 *.pyc
 .DS_Store
-catalog/saree_index.faiss
-catalog/saree_metadata.pkl
 *.egg-info/
 .env
