@@ -22,22 +22,22 @@ I run the brand and I'm an AI engineer, so I'm closing that gap.
 
 ✅ **Local FAISS index** — fast, no API costs, runs on a laptop
 
+✅ **FastAPI web service** wrapping the search with `/search/text`, `/search/image`, `/health`
+
 ## Coming next
 
-- [ ] FastAPI web service wrapping the search
 - [ ] Search UI on the live store website
 - [ ] WhatsApp AI assistant for fabric / blouse / shipping questions
 - [ ] Auto-generated product descriptions in English, Malayalam, Tamil
 
 ## How to run
 
+### Search from the CLI
+
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-
-# One-time: build the index
-python embed_catalog.py
 
 # Search by text
 python search.py --text "wedding silk with gold border"
@@ -46,9 +46,43 @@ python search.py --text "wedding silk with gold border"
 python search.py --image catalog/images/PP001.jpeg --top-k 5
 ```
 
+The FAISS index (`catalog/saree_index.faiss` + `catalog/saree_metadata.pkl`)
+is committed, so it works out of the box. If you edit `catalog/catalog.csv`
+or any image, regenerate it:
+
+```bash
+python embed_catalog.py
+git add catalog/saree_index.faiss catalog/saree_metadata.pkl
+```
+
+### Run the API locally
+
+```bash
+uvicorn api:app --reload --port 8000
+
+# Then open http://localhost:8000/docs for the interactive Swagger UI.
+```
+
+### Run the test suite
+
+```bash
+pip install pytest
+pytest tests/ -v
+```
+
+## Deploy
+
+A Render Blueprint (`render.yaml`) is included for free-tier deploy.
+After connecting the repo at <https://dashboard.render.com> → New →
+Blueprint, the service builds with CLIP weights preloaded into the
+build cache and exposes the same `/health`, `/search/text`,
+`/search/image`, `/image/{filename}` endpoints publicly.
+
+Live URL: *coming soon*
+
 ## Current status
 
-Week 1 — setting up the catalog embedding pipeline.
+Week 2 — search API live, deploy underway.
 
 ## Tech stack
 
