@@ -78,7 +78,9 @@ Blueprint, the service builds with CLIP weights preloaded into the
 build cache and exposes the same `/health`, `/search/text`,
 `/search/image`, `/image/{filename}` endpoints publicly.
 
-Live URL: *coming soon*
+Live URL: <https://pazhamozhi-api.onrender.com>
+
+Try it: <https://pazhamozhi-api.onrender.com/docs> — interactive Swagger UI for `/search/text`, `/search/image`, `/health`, and `/image/{filename}`. First request after a quiet period takes ~30 s while Render wakes the free-tier dyno.
 
 ## Current status
 
