@@ -33,11 +33,21 @@ from PIL import Image
 from pydantic import BaseModel
 from transformers import CLIPModel, CLIPProcessor
 
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
 )
 logger = logging.getLogger("pazhamozhi")
+
+
+def _parse_origins(raw: str) -> list[str]:
+    """Parse a comma-separated ALLOWED_ORIGINS env value. Empty / unset → ['*']."""
+    items = [o.strip() for o in raw.split(",") if o.strip()]
+    return items or ["*"]
+
+
+ALLOWED_ORIGINS = _parse_origins(os.environ.get("ALLOWED_ORIGINS", "*"))
 
 INDEX_FILE = "catalog/saree_index.faiss"
 METADATA_FILE = "catalog/saree_metadata.pkl"
@@ -88,13 +98,15 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Allow your Netlify site to call this API
+# CORS: open by default, tighten via ALLOWED_ORIGINS env var in production.
+# Example: ALLOWED_ORIGINS="https://pazhamozhipattu.com,https://www.pazhamozhipattu.com"
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten this later to your actual domain
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+logger.info("CORS allow_origins=%s log_level=%s", ALLOWED_ORIGINS, LOG_LEVEL)
 
 
 @app.middleware("http")
