@@ -82,9 +82,51 @@ Live URL: <https://pazhamozhi-api.onrender.com>
 
 Try it: <https://pazhamozhi-api.onrender.com/docs> — interactive Swagger UI for `/search/text`, `/search/image`, `/health`, and `/image/{filename}`. First request after a quiet period takes ~30 s while Render wakes the free-tier dyno.
 
+## Frontend (search demo)
+
+A React + Vite single-page demo lives in `frontend/`. It calls the
+deployed API and renders results as a grid of saree cards, with text
+search, example query chips, and drag-and-drop image search.
+
+### Run locally
+
+```bash
+cd frontend
+npm install
+npm run dev
+# → http://localhost:5173
+```
+
+The app reads its API URL from `VITE_API_URL` (defaults to the live
+Render URL above). To point at a local API, copy `.env.example` to
+`.env.local` and edit.
+
+### Build for production
+
+```bash
+cd frontend
+npm run build       # outputs to frontend/dist/
+```
+
+### Deploy
+
+Two paths, pick whichever fits your existing Netlify setup:
+
+**Path A — drop into your existing Pazhamozhi Pattu Netlify site.**
+After `npm run build`, copy `frontend/dist/*` into your existing
+site's project at `/ai-search/` (or wherever you want it routed) and
+redeploy. The Vite config uses `base: './'` so relative asset paths
+work at any subpath.
+
+**Path B — deploy `frontend/` as its own Netlify site.** A
+`frontend/netlify.toml` is included; in Netlify, "Add new site → Import
+existing project → this repo" with base directory `frontend` will
+build and publish automatically. Set `VITE_API_URL` in the site's
+environment variables.
+
 ## Current status
 
-Week 2 — search API live, deploy underway.
+Week 2 — search API live, frontend ready to ship.
 
 ## Tech stack
 
