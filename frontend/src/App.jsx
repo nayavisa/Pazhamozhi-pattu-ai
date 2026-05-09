@@ -58,6 +58,9 @@ export default function App() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
+  // Track WHICH kind of request is in flight so the loading copy can be
+  // specific ("Searching the catalog…" vs "Analyzing your image…").
+  const [loadingMode, setLoadingMode] = useState(null) // 'text' | 'image' | null
   const [error, setError] = useState(null)
   const [warming, setWarming] = useState(true)
   const [dragActive, setDragActive] = useState(false)
@@ -80,6 +83,7 @@ export default function App() {
   const runTextSearch = useCallback(async (q) => {
     if (!q.trim()) return
     setLoading(true)
+    setLoadingMode('text')
     setError(null)
     try {
       const res = await fetch(`${API_URL}/search/text`, {
@@ -94,6 +98,7 @@ export default function App() {
       setResults([])
     } finally {
       setLoading(false)
+      setLoadingMode(null)
     }
   }, [])
 
@@ -103,6 +108,7 @@ export default function App() {
       return
     }
     setLoading(true)
+    setLoadingMode('image')
     setError(null)
     try {
       const formData = new FormData()
@@ -119,6 +125,7 @@ export default function App() {
       setResults([])
     } finally {
       setLoading(false)
+      setLoadingMode(null)
     }
   }, [])
 
@@ -206,28 +213,50 @@ export default function App() {
       </div>
 
       <div
-        className={`dropzone ${dragActive ? 'dropzone--active' : ''}`}
+        className={`dropzone ${dragActive ? 'dropzone--active' : ''} ${
+          loadingMode === 'image' ? 'dropzone--loading' : ''
+        }`}
         onDrop={onDrop}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => {
+          if (!loading) fileInputRef.current?.click()
+        }}
         onKeyDown={(e) => {
+          if (loading) return
           if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click()
         }}
         role="button"
-        tabIndex={0}
+        tabIndex={loading ? -1 : 0}
+        aria-busy={loadingMode === 'image'}
+        aria-disabled={loading}
         aria-label="Upload a saree image to search by photo"
       >
-        <p className="dropzone__title">
-          {dragActive ? 'Drop the image to search' : 'Drag a saree photo here'}
-        </p>
-        <p className="dropzone__hint">or click to choose a file</p>
+        {loadingMode === 'image' ? (
+          <>
+            <span className="spinner spinner--lg" aria-hidden="true" />
+            <p className="dropzone__title">Analyzing your image…</p>
+            <p className="dropzone__hint">
+              Embedding it with CLIP and ranking the catalog
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="dropzone__title">
+              {dragActive
+                ? 'Drop the image to search'
+                : 'Drag a saree photo here'}
+            </p>
+            <p className="dropzone__hint">or click to choose a file</p>
+          </>
+        )}
         <input
           ref={fileInputRef}
           className="dropzone__input"
           type="file"
           accept="image/*"
           onChange={onFileChange}
+          disabled={loading}
         />
       </div>
 
@@ -237,11 +266,30 @@ export default function App() {
         </div>
       )}
 
-      {loading && results.length === 0 && (
-        <div className="loading">Searching the catalog…</div>
+      {/*
+        Always-visible loading banner whenever a request is in flight.
+        Previously this only rendered when results were empty, so a user
+        running a *second* search saw nothing change and assumed the page
+        was broken. Now it shows for every search, with copy that matches
+        whether they're searching by text or by image.
+      */}
+      {loading && (
+        <div className="loading" role="status" aria-live="polite">
+          <span className="spinner" aria-hidden="true" />
+          <span className="loading__text">
+            {loadingMode === 'image'
+              ? 'Analyzing your image and finding similar sarees…'
+              : 'Searching the catalog…'}
+          </span>
+        </div>
       )}
 
-      <ResultsGrid results={results} />
+      <div
+        className={`grid-wrap ${loading && results.length > 0 ? 'grid-wrap--loading' : ''}`}
+        aria-busy={loading}
+      >
+        <ResultsGrid results={results} />
+      </div>
 
       <footer className="footer">
         Powered by CLIP + FAISS ·{' '}
