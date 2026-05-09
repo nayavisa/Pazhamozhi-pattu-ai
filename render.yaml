@@ -1,0 +1,60 @@
+# Render Blueprint for the Pazhamozhi Pattu AI search API.
+# https://render.com/docs/blueprint-spec
+#
+# To deploy:
+#   1. Push this branch to GitHub.
+#   2. In Render → New → Blueprint → connect this repo.
+#   3. Render reads this file and provisions the service below.
+#
+# Free tier notes:
+#   - 512 MB RAM. CLIP-base in fp32 is ~600 MB on disk and a similar
+#     footprint in RAM. This MAY OOM at model load. If it does, the
+#     fix is `plan: starter` (~$7/mo, 512 MB → 2 GB). Try free first.
+#   - Cold starts after ~15 min of inactivity take ~30 s. Expected.
+#   - The CLIP weights are downloaded during BUILD (cached by Render
+#     between builds), so the runtime startup only loads them from
+#     local disk into memory.
+
+services:
+  - type: web
+    name: pazhamozhi-api
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /health
+
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      python -c "from transformers import CLIPModel, CLIPProcessor; CLIPModel.from_pretrained('openai/clip-vit-base-patch32'); CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')"
+
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      # Pin Python to match local development.
+      - key: PYTHON_VERSION
+        value: 3.12.13
+
+      # Quirk fix: prevents the libomp duplicate-symbol crash that
+      # PyTorch + FAISS hit together (same fix as the local scripts).
+      - key: KMP_DUPLICATE_LIB_OK
+        value: "TRUE"
+
+      # Stream logs immediately instead of buffering.
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+      # Cache HuggingFace model weights inside the project dir so
+      # Render's build cache picks them up between deploys.
+      - key: HF_HOME
+        value: /opt/render/project/.cache/huggingface
+
+      # CORS — replace "*" with your Netlify origin once known.
+      # Example: https://pazhamozhipattu.com,https://www.pazhamozhipattu.com
+      - key: ALLOWED_ORIGINS
+        value: "*"
+
+      - key: LOG_LEVEL
+        value: INFO
