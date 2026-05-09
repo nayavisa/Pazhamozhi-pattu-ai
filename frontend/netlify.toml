@@ -1,0 +1,25 @@
+# Optional: deploy frontend/ as a STANDALONE Netlify site directly
+# from this repo, separate from your main Pazhamozhi Pattu site.
+#
+# To use this path:
+#   1. Netlify → Add new site → Import an existing project → this repo
+#   2. Set "Base directory" to: frontend
+#   3. Netlify will pick up the build/publish/redirects below.
+#   4. In Site settings → Environment variables, set
+#        VITE_API_URL=https://pazhamozhi-api.onrender.com
+#
+# If you'd rather drop the built files into your existing
+# pazhamozhi-pattu.netlify.app site, ignore this file. Build with
+# `npm run build` and copy frontend/dist/* into that site under /ai-search/.
+
+[build]
+  base    = "frontend"
+  publish = "dist"
+  command = "npm install && npm run build"
+
+# SPA fallback: every path serves index.html so client-side routing
+# (none today, but easy to add) works on direct navigation / refresh.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
