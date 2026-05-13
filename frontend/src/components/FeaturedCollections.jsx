@@ -25,6 +25,12 @@ const COLLECTIONS = [
     query: 'flamingo print linen saree for a brunch',
     image: '/image/PP006.jpeg',
   },
+  {
+    title: 'Everyday cottons',
+    blurb: 'Block prints & batik, light and easy to drape.',
+    query: 'block print cotton saree',
+    image: '/image/PP014.jpeg',
+  },
 ]
 
 export default function FeaturedCollections() {
@@ -43,7 +49,7 @@ export default function FeaturedCollections() {
             Curated edits
           </motion.span>
           <motion.h2 variants={fadeUp} className="mt-5 text-display-md">
-            Three doorways into the catalog.
+            Four doorways into the catalog.
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-ink-700">
             Click any collection to drop the query into the search above and
@@ -54,7 +60,7 @@ export default function FeaturedCollections() {
         <motion.div
           {...inViewProps}
           variants={stagger}
-          className="mt-12 grid gap-6 md:grid-cols-3"
+          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
         >
           {COLLECTIONS.map((c) => (
             <motion.button
