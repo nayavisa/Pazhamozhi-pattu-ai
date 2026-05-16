@@ -67,7 +67,7 @@ export default function Hero() {
             variants={fadeUp}
             className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-ink-500"
           >
-            <Stat label="Sarees indexed" value="23" />
+            <Stat label="Sarees indexed" value="28" />
             <span aria-hidden className="hidden h-3 w-px bg-cream-200 sm:block" />
             <Stat label="Models" value="CLIP · FAISS" />
             <span aria-hidden className="hidden h-3 w-px bg-cream-200 sm:block" />
