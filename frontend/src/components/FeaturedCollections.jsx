@@ -31,6 +31,12 @@ const COLLECTIONS = [
     query: 'block print cotton saree',
     image: '/image/PP014.jpeg',
   },
+  {
+    title: 'Heritage kasavu',
+    blurb: 'Kerala traditional. The original festive white.',
+    query: 'traditional Kerala kasavu saree with gold border',
+    image: '/image/PP028.jpeg',
+  },
 ]
 
 export default function FeaturedCollections() {
@@ -49,7 +55,7 @@ export default function FeaturedCollections() {
             Curated edits
           </motion.span>
           <motion.h2 variants={fadeUp} className="mt-5 text-display-md">
-            Four doorways into the catalog.
+            Five doorways into the catalog.
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-ink-700">
             Click any collection to drop the query into the search above and
@@ -60,7 +66,7 @@ export default function FeaturedCollections() {
         <motion.div
           {...inViewProps}
           variants={stagger}
-          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-12 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
         >
           {COLLECTIONS.map((c) => (
             <motion.button
