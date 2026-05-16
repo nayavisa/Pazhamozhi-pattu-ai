@@ -4,3 +4,10 @@ __pycache__/
 .DS_Store
 *.egg-info/
 .env
+
+# add_sarees.py — staging area for new saree photos before they're moved
+# into catalog/images/. We keep the directory but ignore everything in it
+# (the .gitkeep file is whitelisted below).
+catalog/incoming/*
+!catalog/incoming/.gitkeep
+!catalog/incoming/prices.csv.example

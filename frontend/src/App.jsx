@@ -1,306 +1,39 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 
-const API_URL =
-  import.meta.env.VITE_API_URL || 'https://pazhamozhi-api.onrender.com'
+import Navbar from './components/Navbar.jsx'
+import Hero from './components/Hero.jsx'
+import AISearchSection from './components/AISearchSection.jsx'
+import FeaturedCollections from './components/FeaturedCollections.jsx'
+import BrandStory from './components/BrandStory.jsx'
+import Footer from './components/Footer.jsx'
 
-const EXAMPLE_QUERIES = [
-  'wedding silk saree with gold zari border',
-  'flamingo print for a brunch',
-  'lightweight cotton-feel saree under ₹3000',
-]
-
-const TOP_K = 8
-
-function formatPrice(p) {
-  return `₹${Number(p).toLocaleString('en-IN')}`
-}
-
-function ResultCard({ result }) {
-  return (
-    <article className="card">
-      <img
-        className="card__image"
-        src={`${API_URL}${result.image_url}`}
-        alt={result.name}
-        loading="lazy"
-      />
-      <div className="card__body">
-        <h3 className="card__name">{result.name}</h3>
-        <p className="card__meta">
-          {result.fabric} · {result.occasion}
-        </p>
-        <div className="card__row">
-          <span className="card__price">{formatPrice(result.price)}</span>
-          <span
-            className="card__score"
-            title={`Cosine similarity: ${result.score.toFixed(3)}`}
-          >
-            {(result.score * 100).toFixed(0)}% match
-          </span>
-        </div>
-      </div>
-    </article>
-  )
-}
-
-function ResultsGrid({ results }) {
-  if (results.length === 0) return null
-  return (
-    <section className="grid" aria-label="Search results">
-      {results.map((r) => (
-        <ResultCard key={r.id} result={r} />
-      ))}
-    </section>
-  )
-}
+import { pingHealth } from './lib/api.js'
 
 export default function App() {
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState([])
-  const [loading, setLoading] = useState(false)
-  // Track WHICH kind of request is in flight so the loading copy can be
-  // specific ("Searching the catalog…" vs "Analyzing your image…").
-  const [loadingMode, setLoadingMode] = useState(null) // 'text' | 'image' | null
-  const [error, setError] = useState(null)
+  // Pre-warm the Render free-tier dyno so the first search isn't a 30s
+  // wait. The AISearchSection shows a banner while warming is true.
   const [warming, setWarming] = useState(true)
-  const [dragActive, setDragActive] = useState(false)
-  const fileInputRef = useRef(null)
 
-  // Pre-warm the Render free-tier dyno so the first user search isn't
-  // a 30-second wait. /health is cheap and triggers the cold-start.
   useEffect(() => {
     let cancelled = false
-    fetch(`${API_URL}/health`)
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setWarming(false)
-      })
+    pingHealth().finally(() => {
+      if (!cancelled) setWarming(false)
+    })
     return () => {
       cancelled = true
     }
   }, [])
 
-  const runTextSearch = useCallback(async (q) => {
-    if (!q.trim()) return
-    setLoading(true)
-    setLoadingMode('text')
-    setError(null)
-    try {
-      const res = await fetch(`${API_URL}/search/text`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: q, top_k: TOP_K }),
-      })
-      if (!res.ok) throw new Error(`Search failed (${res.status})`)
-      setResults(await res.json())
-    } catch (e) {
-      setError(e.message)
-      setResults([])
-    } finally {
-      setLoading(false)
-      setLoadingMode(null)
-    }
-  }, [])
-
-  const runImageSearch = useCallback(async (file) => {
-    if (!file || !file.type.startsWith('image/')) {
-      setError('Please drop or select an image file (jpg/png).')
-      return
-    }
-    setLoading(true)
-    setLoadingMode('image')
-    setError(null)
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('top_k', String(TOP_K))
-      const res = await fetch(`${API_URL}/search/image`, {
-        method: 'POST',
-        body: formData,
-      })
-      if (!res.ok) throw new Error(`Image search failed (${res.status})`)
-      setResults(await res.json())
-    } catch (e) {
-      setError(e.message)
-      setResults([])
-    } finally {
-      setLoading(false)
-      setLoadingMode(null)
-    }
-  }, [])
-
-  const onSubmit = (e) => {
-    e.preventDefault()
-    runTextSearch(query)
-  }
-
-  const onChip = (q) => {
-    setQuery(q)
-    runTextSearch(q)
-  }
-
-  const onDrop = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-    const f = e.dataTransfer?.files?.[0]
-    if (f) runImageSearch(f)
-  }
-
-  const onDragOver = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(true)
-  }
-  const onDragLeave = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-  }
-  const onFileChange = (e) => {
-    const f = e.target.files?.[0]
-    if (f) runImageSearch(f)
-    // Reset so re-uploading the same file fires onChange again.
-    e.target.value = ''
-  }
-
   return (
-    <div className="page">
-      <header className="header">
-        <h1>Pazhamozhi Pattu — AI Search</h1>
-        <p className="subtitle">
-          Search the saree catalog by what you mean, or by a picture.
-        </p>
-      </header>
-
-      {warming && (
-        <div className="banner" role="status">
-          Waking up the API… first request can take up to 30 seconds.
-        </div>
-      )}
-
-      <form className="search" onSubmit={onSubmit}>
-        <input
-          className="search__input"
-          type="text"
-          placeholder="e.g. wedding silk with gold border"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search query"
-        />
-        <button
-          className="search__button"
-          type="submit"
-          disabled={loading || !query.trim()}
-        >
-          {loading ? 'Searching…' : 'Search'}
-        </button>
-      </form>
-
-      <div className="chips" aria-label="Example queries">
-        <span className="chips__label">Try:</span>
-        {EXAMPLE_QUERIES.map((q) => (
-          <button
-            key={q}
-            className="chip"
-            type="button"
-            onClick={() => onChip(q)}
-            disabled={loading}
-          >
-            {q}
-          </button>
-        ))}
-      </div>
-
-      <div
-        className={`dropzone ${dragActive ? 'dropzone--active' : ''} ${
-          loadingMode === 'image' ? 'dropzone--loading' : ''
-        }`}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onClick={() => {
-          if (!loading) fileInputRef.current?.click()
-        }}
-        onKeyDown={(e) => {
-          if (loading) return
-          if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click()
-        }}
-        role="button"
-        tabIndex={loading ? -1 : 0}
-        aria-busy={loadingMode === 'image'}
-        aria-disabled={loading}
-        aria-label="Upload a saree image to search by photo"
-      >
-        {loadingMode === 'image' ? (
-          <>
-            <span className="spinner spinner--lg" aria-hidden="true" />
-            <p className="dropzone__title">Analyzing your image…</p>
-            <p className="dropzone__hint">
-              Embedding it with CLIP and ranking the catalog
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="dropzone__title">
-              {dragActive
-                ? 'Drop the image to search'
-                : 'Drag a saree photo here'}
-            </p>
-            <p className="dropzone__hint">or click to choose a file</p>
-          </>
-        )}
-        <input
-          ref={fileInputRef}
-          className="dropzone__input"
-          type="file"
-          accept="image/*"
-          onChange={onFileChange}
-          disabled={loading}
-        />
-      </div>
-
-      {error && (
-        <div className="error" role="alert">
-          {error}
-        </div>
-      )}
-
-      {/*
-        Always-visible loading banner whenever a request is in flight.
-        Previously this only rendered when results were empty, so a user
-        running a *second* search saw nothing change and assumed the page
-        was broken. Now it shows for every search, with copy that matches
-        whether they're searching by text or by image.
-      */}
-      {loading && (
-        <div className="loading" role="status" aria-live="polite">
-          <span className="spinner" aria-hidden="true" />
-          <span className="loading__text">
-            {loadingMode === 'image'
-              ? 'Analyzing your image and finding similar sarees…'
-              : 'Searching the catalog…'}
-          </span>
-        </div>
-      )}
-
-      <div
-        className={`grid-wrap ${loading && results.length > 0 ? 'grid-wrap--loading' : ''}`}
-        aria-busy={loading}
-      >
-        <ResultsGrid results={results} />
-      </div>
-
-      <footer className="footer">
-        Powered by CLIP + FAISS ·{' '}
-        <a
-          href="https://github.com/nayavisa/Pazhamozhi-pattu-ai"
-          target="_blank"
-          rel="noreferrer"
-        >
-          source
-        </a>
-      </footer>
+    <div className="min-h-screen">
+      <Navbar />
+      <main>
+        <Hero />
+        <AISearchSection warming={warming} />
+        <FeaturedCollections />
+        <BrandStory />
+      </main>
+      <Footer />
     </div>
   )
 }

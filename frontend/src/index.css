@@ -1,361 +1,119 @@
 /*
- * Brand-aligned warm tones (saree heritage). Single stylesheet, no
- * preprocessor, no Tailwind — small enough to read top to bottom.
+ * Pazhamozhi Pattu — global styles.
+ * Tailwind for the bulk; this file just adds base typography, the
+ * paper-grain page background, and a few component-shaped utilities.
  */
 
-:root {
-  --bg: #fdf9f3;
-  --surface: #ffffff;
-  --ink: #2a1d10;
-  --ink-soft: #6b5946;
-  --accent: #8a1538;       /* deep maroon */
-  --accent-hover: #6f0f2c;
-  --accent-soft: #f3d6df;
-  --border: #ead7be;
-  --shadow: 0 1px 3px rgba(40, 25, 10, 0.08);
-}
+@import '@fontsource/cormorant-garamond/400.css';
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/600.css';
+@import '@fontsource/cormorant-garamond/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  line-height: 1.5;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-
-button {
-  font: inherit;
-}
-
-.page {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 32px 20px 80px;
-}
-
-/* Header */
-.header h1 {
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
-  font-weight: 700;
-  margin: 0 0 8px;
-  color: var(--accent);
-  letter-spacing: -0.01em;
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--ink-soft);
-}
-
-/* Cold-start banner */
-.banner {
-  margin-top: 16px;
-  padding: 10px 14px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.92rem;
-  color: var(--ink);
-}
-
-/* Search bar */
-.search {
-  display: flex;
-  gap: 8px;
-  margin-top: 24px;
-}
-
-.search__input {
-  flex: 1;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 1rem;
-  background: var(--surface);
-  color: var(--ink);
-}
-
-.search__input:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-.search__button {
-  padding: 12px 20px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.search__button:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-
-.search__button:disabled {
-  background: var(--ink-soft);
-  cursor: not-allowed;
-}
-
-/* Example chips */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin-top: 12px;
-}
-
-.chips__label {
-  font-size: 0.88rem;
-  color: var(--ink-soft);
-}
-
-.chip {
-  padding: 6px 12px;
-  background: var(--surface);
-  color: var(--ink);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.88rem;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.chip:hover:not(:disabled) {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-}
-
-.chip:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Dropzone */
-.dropzone {
-  margin-top: 20px;
-  padding: 28px;
-  border: 2px dashed var(--border);
-  border-radius: 12px;
-  text-align: center;
-  color: var(--ink-soft);
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
-  background: var(--surface);
-}
-
-.dropzone:hover,
-.dropzone:focus-visible,
-.dropzone--active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--ink);
-  outline: none;
-}
-
-/* While an image search is in flight, show solid border + the spinner
-   inside, and disable interaction. */
-.dropzone--loading,
-.dropzone--loading:hover {
-  border-style: solid;
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--ink);
-  cursor: wait;
-}
-
-.dropzone__title {
-  margin: 0 0 4px;
-  font-weight: 600;
-}
-
-.dropzone__hint {
-  margin: 0;
-  font-size: 0.88rem;
-}
-
-.dropzone__input {
-  display: none;
-}
-
-/* Status messages */
-.error {
-  margin-top: 16px;
-  padding: 12px 14px;
-  background: #fde4e4;
-  border: 1px solid #f4b3b3;
-  color: #831717;
-  border-radius: 8px;
-}
-
-/*
- * Loading banner — shows for EVERY in-flight search/image request
- * (not just the first one), so the user always gets visual feedback
- * that work is happening.
- */
-.loading {
-  margin-top: 20px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--ink);
-  font-weight: 500;
-}
-
-.loading__text {
-  font-size: 0.95rem;
-}
-
-/* Generic spinner — used in the loading banner and the dropzone. */
-.spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2.5px solid var(--accent-soft);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
-}
-
-.spinner--lg {
-  width: 32px;
-  height: 32px;
-  border-width: 3px;
-  margin: 0 auto 10px;
-  display: block;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream-50 text-ink-900 font-sans antialiased;
+    /* Paper-grain texture overlay — barely perceptible but kills the
+       flat-website look. */
+    background-image: theme('backgroundImage.grain');
+    background-attachment: fixed;
+  }
+  h1, h2, h3 {
+    @apply font-display tracking-tight text-ink-900;
+  }
+  ::selection {
+    @apply bg-maroon-100 text-ink-900;
   }
 }
 
-/* Dim the previous results while a new search is running so the
-   loading banner clearly stands out. */
-.grid-wrap {
-  transition: opacity 0.2s, filter 0.2s;
-}
+@layer components {
+  /* Generic content container — used by every section so vertical rhythm
+     stays consistent. */
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-6 md:px-10;
+  }
 
-.grid-wrap--loading {
-  opacity: 0.5;
-  filter: grayscale(0.2);
-  pointer-events: none;
-}
+  /* Section vertical padding rhythm. */
+  .section {
+    @apply py-20 md:py-28;
+  }
 
-@media (prefers-reduced-motion: reduce) {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full
+           px-6 py-3 text-sm font-semibold tracking-wide
+           transition-all duration-200 ease-out
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-maroon-600
+           focus-visible:ring-offset-2 focus-visible:ring-offset-cream-50;
+  }
+  .btn-primary {
+    @apply btn bg-maroon-600 text-white shadow-soft
+           hover:bg-maroon-700 hover:shadow-lift active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn border border-ink-900/15 bg-white/60 text-ink-900
+           backdrop-blur hover:border-maroon-600 hover:text-maroon-600;
+  }
+
+  /* Eyebrow label — small uppercase tag above headlines. */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase
+           tracking-[0.18em] text-maroon-600;
+  }
+  .eyebrow::before {
+    content: '';
+    @apply h-px w-8 bg-maroon-600/60;
+  }
+
+  /* Card — used by saree results, collection tiles, etc. */
+  .card {
+    @apply relative overflow-hidden rounded-2xl border border-cream-200
+           bg-white shadow-soft transition-all duration-300 ease-out;
+  }
+  .card:hover {
+    @apply -translate-y-1 shadow-lift;
+  }
+
+  /* Spinner — dimensions controlled by parent (w-/h- utility). */
   .spinner {
-    animation: none;
-    border-top-color: var(--accent);
-    border-right-color: var(--accent);
+    @apply inline-block animate-spin rounded-full border-[2.5px]
+           border-maroon-100 border-t-maroon-600;
   }
-  .grid-wrap {
-    transition: none;
+
+  /* Skeleton shimmer for image placeholders. */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      theme('colors.cream.100') 0%,
+      theme('colors.cream.200') 50%,
+      theme('colors.cream.100') 100%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
   }
 }
 
-/* Results grid */
-.grid {
-  margin-top: 24px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 18px;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-}
-
-.card__image {
-  width: 100%;
-  height: 280px;
-  object-fit: cover;
-  background: #f0e6d6;
-}
-
-.card__body {
-  padding: 14px 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.card__name {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.card__meta {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  text-transform: capitalize;
-}
-
-.card__row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 4px;
-}
-
-.card__price {
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.card__score {
-  font-size: 0.78rem;
-  color: var(--ink-soft);
-}
-
-/* Footer */
-.footer {
-  margin-top: 60px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-  text-align: center;
-  color: var(--ink-soft);
-  font-size: 0.88rem;
-}
-
-.footer a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.footer a:hover {
-  text-decoration: underline;
+@layer utilities {
+  /* Reduce motion: kill spinner + shimmer + animations for users who
+     opt out. */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-up,
+    .animate-shimmer,
+    .animate-spin {
+      animation: none !important;
+    }
+    .card {
+      transition: none !important;
+    }
+  }
 }

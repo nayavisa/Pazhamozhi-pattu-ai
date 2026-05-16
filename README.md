@@ -55,6 +55,39 @@ python embed_catalog.py
 git add catalog/saree_index.faiss catalog/saree_metadata.pkl
 ```
 
+### Add new sarees to the catalog (auto-generated metadata)
+
+Typing fabric / colour / occasion / description for every new saree is
+the slowest part of the workflow, so `add_sarees.py` does it via
+Claude's vision API. Drop photos in `catalog/incoming/`, give it a
+price, and it generates the catalog row for you.
+
+```bash
+# One-time:
+export ANTHROPIC_API_KEY=sk-ant-...   # from https://console.anthropic.com/
+
+# Each time you have new sarees:
+cp my_new_sarees/*.jpeg catalog/incoming/
+
+# Easiest — same price for the whole batch:
+python add_sarees.py --default-price 2500
+
+# Or — per-image prices via catalog/incoming/prices.csv
+#   (see catalog/incoming/prices.csv.example for the format)
+python add_sarees.py
+
+# Preview without writing anything:
+python add_sarees.py --default-price 2500 --dry-run
+```
+
+What it does, in order: looks at each image with Claude, generates
+`name`, `fabric`, colours, `pattern`, `occasion`, `border_style`,
+`blouse_included`, and a 2-4 sentence `description`; assigns the next
+`PP###` id; moves the image into `catalog/images/`; appends the row to
+`catalog/catalog.csv`; reruns `embed_catalog.py` so the FAISS index
+picks up the new sarees. Commit the changes and push — the deploy
+serves the new sarees on its next restart.
+
 ### Run the API locally
 
 ```bash
