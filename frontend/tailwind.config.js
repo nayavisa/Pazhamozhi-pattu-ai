@@ -39,6 +39,26 @@ export default {
           500: '#c19828',
           600: '#a07d1a',
         },
+        // Saffron — new accent color introduced in the v2 redesign.
+        // Replaces the "yellow highlight box" pattern from the reference
+        // with something culturally truer to a Kerala saree brand.
+        saffron: {
+          50:  '#fdf3e0',
+          100: '#fae0b2',
+          200: '#f5c87a',
+          300: '#f0b04a',
+          400: '#ea9d2a',
+          500: '#e89b2c',   // primary highlight color
+          600: '#cd831c',   // hover / dark
+          700: '#a0640f',
+        },
+        // Soft blush + sage for FeaturedCollections tile backgrounds.
+        blush: {
+          400: '#f3d5ce',
+        },
+        sage: {
+          400: '#8eab8e',
+        },
       },
       fontFamily: {
         // Display = elegant serif for headlines.

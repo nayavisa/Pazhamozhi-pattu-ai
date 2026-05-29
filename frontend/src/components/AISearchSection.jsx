@@ -138,18 +138,40 @@ export default function AISearchSection({ warming }) {
   return (
     <section id="search" className="section relative">
       <div className="container-x">
-        {/* Section header */}
-        <motion.div {...inViewProps} variants={stagger} className="max-w-2xl">
-          <motion.span variants={fadeUp} className="eyebrow">
-            <Sparkles className="h-3.5 w-3.5" /> The AI search
+        {/* Section header — v2: centred, with saffron highlight box on "AI knows". */}
+        <motion.div
+          {...inViewProps}
+          variants={stagger}
+          className="mx-auto max-w-3xl text-center"
+        >
+          <motion.span
+            variants={fadeUp}
+            className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-maroon-600"
+          >
+            <Sparkles className="h-3.5 w-3.5" /> The AI Search
           </motion.span>
-          <motion.h2 variants={fadeUp} className="mt-5 text-display-md">
-            Two ways to find your saree.
+          <motion.h2
+            variants={fadeUp}
+            className="mt-5 font-display text-4xl font-bold leading-[1.08] tracking-tight text-ink-900 md:text-5xl lg:text-6xl"
+          >
+            Describe a saree. Drop a photo.
+            <br />
+            The{' '}
+            <span className="relative inline-block">
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-[-8px] bottom-1 top-3 -z-0 rounded-sm bg-saffron-500"
+              />
+              <span className="relative z-10">AI knows.</span>
+            </span>
           </motion.h2>
-          <motion.p variants={fadeUp} className="mt-4 text-ink-700">
-            Describe what you want in your own words, or upload a photo of a
-            saree you like. The AI runs both your text and your images through
-            CLIP and ranks the catalog by similarity.
+          <motion.p
+            variants={fadeUp}
+            className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-700"
+          >
+            CLIP embeddings + FAISS over our handwoven catalog. Type a vibe, an
+            occasion, or a colour story &mdash; or upload a saree you love and
+            we&rsquo;ll find its sisters.
           </motion.p>
         </motion.div>
 

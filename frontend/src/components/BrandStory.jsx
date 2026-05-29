@@ -1,70 +1,88 @@
 import { motion } from 'framer-motion'
-import { Heart, ScanSearch, Languages } from 'lucide-react'
 import { fadeUp, stagger, inViewProps } from '../lib/motion.js'
+import { imageSrc } from '../lib/api.js'
 
-const PILLARS = [
-  {
-    icon: Heart,
-    title: 'Heritage first',
-    body: 'Every saree is sourced from weavers we know by name. The brand carries forward the stories — pazhamozhi means old saying — that the looms have been telling for generations.',
-  },
-  {
-    icon: ScanSearch,
-    title: 'AI that respects fabric',
-    body: 'The search doesn\u2019t just match keywords. It understands fabric, occasion, and aesthetic, so &ldquo;temple cotton for a morning function&rdquo; lands you exactly there.',
-  },
-  {
-    icon: Languages,
-    title: 'Built for India\u2019s buyers',
-    body: 'Soon: Malayalam and Tamil descriptions, WhatsApp-native shopping, and visual try-ons. The future of saree shopping shouldn\u2019t feel like a 2015 web form.',
-  },
-]
-
+// v2 redesign — split layout (text + image with a saffron decorative
+// shape sitting behind it). The body copy leans into "Pazhamozhi Pattu
+// = proverbial silk" rather than a pillar grid, which felt more
+// brand-led and matched the reference's editorial vibe better.
 export default function BrandStory() {
   return (
-    <section id="story" className="section bg-white/60">
+    <section id="story" className="section bg-cream-100/70">
       <div className="container-x">
-        <motion.div {...inViewProps} variants={stagger} className="max-w-3xl">
-          <motion.span variants={fadeUp} className="eyebrow">
-            Pazhamozhi Pattu — പഴമൊഴി പട്ടു
-          </motion.span>
-          <motion.h2 variants={fadeUp} className="mt-5 text-display-lg">
-            A saree house, run by an engineer.
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mt-6 text-lg leading-relaxed text-ink-700">
-            We&rsquo;re a small heritage brand built on two convictions: that the
-            sarees our weavers make deserve a story, and that the way India
-            shops for them deserves a serious upgrade. Pazhamozhi Pattu pairs
-            traditional craftsmanship with modern, AI-native retail &mdash; built in
-            public, one feature at a time.
-          </motion.p>
-        </motion.div>
-
-        <motion.div
-          {...inViewProps}
-          variants={stagger}
-          className="mt-14 grid gap-8 md:grid-cols-3"
-        >
-          {PILLARS.map((p) => (
-            <motion.div
-              key={p.title}
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          {/* ---------- LEFT: copy ---------- */}
+          <motion.div
+            {...inViewProps}
+            variants={stagger}
+            className="max-w-xl"
+          >
+            <motion.span
               variants={fadeUp}
-              className="rounded-2xl border border-cream-200 bg-cream-50/80 p-6 shadow-soft"
+              className="text-[11px] font-semibold uppercase tracking-[0.32em] text-maroon-600"
             >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-maroon-600/10 text-maroon-600">
-                <p.icon className="h-5 w-5" />
+              Our Story
+            </motion.span>
+
+            <motion.h2
+              variants={fadeUp}
+              className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-ink-900 md:text-5xl lg:text-6xl"
+            >
+              Old proverb,
+              <br />
+              <span className="relative inline-block">
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-[-10px] bottom-1 top-3 -z-0 rounded-sm bg-saffron-500"
+                />
+                <span className="relative z-10">new wardrobe.</span>
               </span>
-              <h3 className="mt-5 font-display text-xl font-semibold text-ink-900">
-                {p.title}
-              </h3>
-              <p
-                className="mt-3 text-[15px] leading-relaxed text-ink-700"
-                // Allows the &ldquo;quoted&rdquo; chars in the second pillar.
-                dangerouslySetInnerHTML={{ __html: p.body }}
+            </motion.h2>
+
+            <motion.p
+              variants={fadeUp}
+              className="mt-7 text-lg leading-relaxed text-ink-700"
+            >
+              Pazhamozhi Pattu (പഴമൊഴി പട്ടു) means &lsquo;proverbial silk&rsquo;
+              &mdash; the wisdom of grandmothers, woven into a saree. Every piece in our
+              catalog is handpicked from Kerala and across South India: kasavu from
+              Balaramapuram, silks from Kanchipuram, breezy cottons from local
+              block-print artisans. The AI is just the door &mdash; what&rsquo;s
+              behind it has been hand-woven for centuries.
+            </motion.p>
+
+            <motion.a
+              variants={fadeUp}
+              href="https://www.linkedin.com/in/vishnu-n-v-6916661a5/"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-7 inline-flex items-center text-sm font-semibold text-maroon-600 underline-offset-4 hover:underline"
+            >
+              Follow the build-in-public journey →
+            </motion.a>
+          </motion.div>
+
+          {/* ---------- RIGHT: image + saffron decorative shape ---------- */}
+          <motion.div
+            {...inViewProps}
+            variants={fadeUp}
+            className="relative h-[440px] md:h-[500px]"
+          >
+            {/* Back layer — saffron square offset down-left */}
+            <div
+              aria-hidden="true"
+              className="absolute bottom-0 left-0 h-[88%] w-[80%] rounded-2xl bg-saffron-500"
+            />
+            {/* Front layer — image card offset up-right */}
+            <div className="absolute right-0 top-0 h-[88%] w-[80%] overflow-hidden rounded-2xl bg-maroon-700 shadow-lift">
+              <img
+                src={imageSrc('/image/PP002.jpeg')}
+                alt="Heritage saree photography"
+                className="h-full w-full object-cover"
               />
-            </motion.div>
-          ))}
-        </motion.div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   )
