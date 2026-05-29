@@ -93,6 +93,11 @@ export default function Hero() {
             <img
               src={imageSrc('/image/PP028.jpeg')}
               alt="Heritage Kerala kasavu saree — white with gold border"
+              width="640"
+              height="640"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
               className="h-full w-full object-cover"
             />
 

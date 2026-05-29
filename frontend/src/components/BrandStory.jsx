@@ -78,6 +78,10 @@ export default function BrandStory() {
               <img
                 src={imageSrc('/image/PP002.jpeg')}
                 alt="Heritage saree photography"
+                width="560"
+                height="500"
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>

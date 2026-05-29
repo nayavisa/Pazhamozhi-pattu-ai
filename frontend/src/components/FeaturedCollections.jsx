@@ -131,7 +131,10 @@ export default function FeaturedCollections() {
                 <img
                   src={imageSrc(c.image)}
                   alt={c.title}
+                  width="320"
+                  height="240"
                   loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
                 />
               </div>

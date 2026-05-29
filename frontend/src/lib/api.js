@@ -8,8 +8,13 @@ export const API_URL =
 
 export function imageSrc(path) {
   if (!path) return ''
-  // The API already returns paths like "/image/PP001.jpeg".
-  return `${API_URL}${path}`
+  // Both static (Hero, Collection tiles, BrandStory) and dynamic
+  // (AI search results) image paths look like "/image/PP001.jpeg".
+  // We now ship the catalog photos with the frontend, so Netlify's
+  // CDN serves them straight from the edge — much faster than the
+  // Render free dyno that used to deliver them. The /image/ path
+  // resolves to /public/image/*.jpeg at the deployed site root.
+  return path
 }
 
 export async function searchByText(query, topK = 8) {
